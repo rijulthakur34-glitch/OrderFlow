@@ -15,17 +15,14 @@ public abstract class Order implements Comparable<Order> {
         this.items = items;
     }
 
-    // Abstract method showcasing Polymorphism
     public abstract double calculateTotalProcessingFee();
 
     public String getOrderId() { return orderId; }
     public double getOrderValue() { return orderValue; }
     public Map<String, Integer> getItems() { return items; }
     
-    // For sorting in PriorityQueue (DSA)
     @Override
     public int compareTo(Order other) {
-        // Higher priority score is processed first
         return Integer.compare(other.priorityScore, this.priorityScore);
     }
 }
