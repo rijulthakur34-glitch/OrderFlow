@@ -3,10 +3,12 @@ package com.orderflow.service;
 import com.orderflow.database.DatabaseManager;
 import com.orderflow.exception.OrderProcessingException;
 import com.orderflow.model.Order;
+import org.springframework.stereotype.Service;
 
 import java.util.PriorityQueue;
 import java.util.logging.Logger;
 
+@Service
 public class OrderProcessor {
     private static final Logger logger = Logger.getLogger(OrderProcessor.class.getName());
     
@@ -21,41 +23,37 @@ public class OrderProcessor {
         this.databaseManager = databaseManager;
     }
 
-    public void enqueueOrder(Order order) {
-        if (inventoryManager.hasSufficientStock(order.getItems())) {
-            orderQueue.add(order);
-            logger.info("Enqueued " + order.getClass().getSimpleName() + " - ID: " + order.getOrderId());
-        } else {
-            logger.warning("Failed to enqueue order " + order.getOrderId() + ": Insufficient inventory.");
+    public String processSingleOrder(Order order) throws OrderProcessingException {
+        if (!inventoryManager.hasSufficientStock(order.getItems())) {
+            return "Failed: Insufficient inventory for order " + order.getOrderId();
         }
-    }
 
-    public void processAllOrders() throws OrderProcessingException {
-        logger.info("--- Starting Order Processing Batch ---");
+        orderQueue.add(order);
+        logger.info("Enqueued " + order.getClass().getSimpleName() + " - ID: " + order.getOrderId());
         
-        while (!orderQueue.isEmpty()) {
-            Order currentOrder = orderQueue.poll(); // O(log N) retrieval
-            
-            try {
-                // Deduct inventory
-                for (var entry : currentOrder.getItems().entrySet()) {
-                    inventoryManager.deductInventory(entry.getKey(), entry.getValue());
-                }
-                
-                // Polymorphic calculation
-                double fee = currentOrder.calculateTotalProcessingFee(); 
-                
-                logger.info("Processed " + currentOrder.getOrderId() + 
-                            " | Value: $" + currentOrder.getOrderValue() +
-                            " | Fee Collected: $" + String.format("%.2f", fee));
-                
-                // Persist
-                databaseManager.logProcessedOrder(currentOrder.getOrderId(), fee);
-
-            } catch (Exception e) {
-                throw new OrderProcessingException("Error processing order " + currentOrder.getOrderId(), e);
+        // Process immediately for the REST API simplicity
+        Order currentOrder = orderQueue.poll();
+        
+        try {
+            // Deduct inventory
+            for (var entry : currentOrder.getItems().entrySet()) {
+                inventoryManager.deductInventory(entry.getKey(), entry.getValue());
             }
+            
+            // Polymorphic calculation
+            double fee = currentOrder.calculateTotalProcessingFee(); 
+            
+            String successMsg = "Processed " + currentOrder.getOrderId() + 
+                        " | Value: $" + currentOrder.getOrderValue() +
+                        " | Fee Collected: $" + String.format("%.2f", fee);
+            logger.info(successMsg);
+            
+            // Persist
+            databaseManager.logProcessedOrder(currentOrder.getOrderId(), fee);
+            return successMsg;
+
+        } catch (Exception e) {
+            throw new OrderProcessingException("Error processing order " + currentOrder.getOrderId(), e);
         }
-        logger.info("--- Order Processing Complete ---");
     }
 }

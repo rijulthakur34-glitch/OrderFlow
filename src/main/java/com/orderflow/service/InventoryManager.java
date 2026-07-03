@@ -1,10 +1,14 @@
 package com.orderflow.service;
 
 import com.orderflow.exception.InventoryShortageException;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+@Service
 public class InventoryManager {
     private static final Logger logger = Logger.getLogger(InventoryManager.class.getName());
     
@@ -13,6 +17,13 @@ public class InventoryManager {
 
     public InventoryManager() {
         this.inventoryMap = new HashMap<>();
+    }
+
+    @PostConstruct
+    public void initDemoInventory() {
+        // Pre-load some inventory for the API demonstration
+        addInventory("LAPTOP-X", 50);
+        addInventory("MOUSE-Y", 200);
     }
 
     public void addInventory(String productId, int quantity) {
