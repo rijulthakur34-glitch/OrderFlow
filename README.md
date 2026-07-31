@@ -1,5 +1,13 @@
 # OrderFlow: Enterprise Order Processing Engine
 
+[![Live API](https://img.shields.io/badge/🌐_Live_API-Render-46E399?style=for-the-badge)](https://orderflow-bamu.onrender.com/api/orders/health)
+![Java](https://img.shields.io/badge/Java-11-orange?logo=openjdk)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-2.7-green?logo=springboot)
+![Docker](https://img.shields.io/badge/Docker-Enabled-blue?logo=docker)
+
+> 🌐 **Live API Base URL:** [https://orderflow-bamu.onrender.com](https://orderflow-bamu.onrender.com)  
+> 🟢 **Health Endpoint:** [https://orderflow-bamu.onrender.com/api/orders/health](https://orderflow-bamu.onrender.com/api/orders/health)
+
 ## 📌 Project Overview
 **OrderFlow** is an enterprise-grade backend processing engine built in **Core Java** using a standard **Maven** architecture. It is designed to manage and process high-volume e-commerce transactions based on priority tiering. It demonstrates the use of efficient Data Structures, Algorithms, custom Exception handling, and Object-Oriented Programming (OOP) principles to handle real-world business rules.
 
